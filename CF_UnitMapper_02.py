@@ -1,5 +1,8 @@
 import rhinoscriptsyntax as rs
 
+
+
+
 def mapValue(val, inMin, inMax, outMin, outMax):
     outR = outMax - outMin
     inR = inMax - inMin
@@ -25,49 +28,46 @@ def calcTriLinear(pt, bbMin, bbMax):
 
 def main():
     box = rs.GetBox()
-    
+
     unitCubeMin = box[0]
     unitCubeMax = box[6]
-    
+
     units = rs.GetObjects("select polylines", 4)
     meshes = rs.GetObjects("select meshes",32)
-    
+
     for unit in units:
         unitPts = []
         unitCoords =[]
-        
+
         polylinePts = rs.PolylineVertices(unit)
-        
+
         for pt in polylinePts:
             tc = calcTriLinear(pt,unitCubeMin,unitCubeMax)
             unitCoords.append(tc)
             unitPts.append(pt)
-        
+
         for mesh in meshes:
             v = rs.MeshVertices(mesh)
             count = 0
-         
+
             newPts = []
             for i in range(0, len(unitPts)):
                 bLC = unitCoords[i]
                 lX1 = lerp(v[4],v[5],bLC[0])
                 lX2 = lerp(v[3],v[0] ,bLC[0])
-                
+
                 uX1 = lerp(v[6],v[7],bLC[0])
                 uX2 = lerp(v[1],v[2],bLC[0])
-                
+
                 y1 = lerp(lX1,lX2,bLC[1])
                 y2 = lerp(uX1,uX2,bLC[1])
-                
+
                 pt = lerp(y1,y2,bLC[2])
                 rs.AddPoint(pt)
                 newPts.append(pt)
-                
+
             rs.AddPolyline(newPts)
 
 
 if __name__ == "__main__":
     main()
-
-
-
